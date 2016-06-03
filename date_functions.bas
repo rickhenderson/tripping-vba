@@ -33,7 +33,7 @@ Private Function convert_to_date(stringDate As String) As Date
     
     ' Create a specific date string to use the DateValue function
     ' to make it return the proper date. Otherwise strange things happen.
-    realDate = theDay & "  " & theMonth & " " & theYear
+    realDate = theDay & "/" & theMonth & "/" & theYear
     
     ' Use DateValue to convert the string to a real date.
     currentDate = DateValue(realDate)
