@@ -16,6 +16,23 @@ Option Explicit
 ' The sheet names are coded inside the sub so you will have to change those for re-use
 ' By using conditional formatting, this could potentially generate an Excel heatmap.
 
+Option Explicit
+
+Private Function getMonth(stringDate As String) As String
+    ' Silly string extraction for string dates
+    ' Since the format must be "dd/mm/yyyy" I can extract the value directly
+    getMonth = Mid(stringDate, 4, 2) ' Strings start at index 1, not 0
+End Function
+
+Private Function getYear(stringDate As String) As String
+ '   Return just the year
+     getYear = Right(stringDate, 4)
+End Function
+
+Private Function getDay(stringDate As String) As String
+ '   Return just the day
+     getDay = Left(stringDate, 2)
+End Function
 Sub calculate_yearly_rainfall()
 
     Dim dataStartCell As Range
@@ -195,8 +212,9 @@ Sub calculate_rainfall_by_month()
                     ' Increase the count to the next month
                     monthNum = monthNum + 1
                     
-                    ' Set the previousMonth as the currentMonth
+                    ' Set the previousMonth and previousYear to be the one just read
                     previousMonth = currentMonth
+                    previousYear = currentYear
                     
                     ' Reset the monthly sum to 0
                     monthlySum = 0
@@ -204,15 +222,28 @@ Sub calculate_rainfall_by_month()
                 End If
                 
                 If currentYear <> previousYear Then
-                     ' A new year has occurred
+                    ' A new year has occurred
+                    
+                    ' Add the December rainfall to the current monthly sum
+                    monthlySum = monthlySum + currentRainfall
+                    
+                    ' Increase the count to the next month
+                    monthNum = monthNum + 1
+                    
+                    ' Set the previousMonth as the currentMonth
+                    previousMonth = currentMonth
+                    Debug.Print ("December rainfall: " & monthlySum)
+                    
+                    ' Output the current Year's December Rainfall
+                    outputStartCell.Offset(yearNum, monthNum).Value = monthlySum
+                    
                     yearlySum = 0
                     yearNum = yearNum + 1
                     monthlySum = 0
                     monthNum = 1
                     previousYear = currentYear
                                         
-                    ' Output the current Year's December Rainfall
-                    'outputStartCell.Offset(yearNum, 0).Value = previousYear
+                    
                     
                     'Debug.Print currentYear
                 End If
