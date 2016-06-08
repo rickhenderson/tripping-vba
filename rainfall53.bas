@@ -243,7 +243,7 @@ Sub calculate_rainfall_by_month()
                     End If
                     
                     ' Increase the count to the next month
-                    monthNum = monthNum + 1
+                    'monthNum = monthNum + 1
                     
                     ' Set the previousMonth as the currentMonth
                     previousMonth = currentMonth
@@ -254,7 +254,9 @@ Sub calculate_rainfall_by_month()
                     
                     yearlySum = 0
                     yearNum = yearNum + 1
-                    monthlySum = 0
+                    
+                    ' Add currentRainfall to the new January
+                    monthlySum = 0 + currentRainfall
                     monthNum = 1
                     previousYear = currentYear
                     
