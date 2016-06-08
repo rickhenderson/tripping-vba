@@ -1,20 +1,30 @@
 Option Explicit
-
-' ==============================================
+' ======================================================
+' Analysis of 53 years of rainfall by year and month.
+' Coded by: Rick Henderson, Twitter: @rickhenderson
+' ======================================================
 ' Given a worksheet with the following data:
 ' For example, containing daily rainfall readings every day for many years
-'
+'  if the date is in mm/dd/yyyy format in the Excel worksheet.
 ' | Date       | Rainfall |
 ' | 01/01/2016 | 7.21     |
 '      ...           ...
-' This subroutine will calcluate the monthly totals of rainfall
+' The subroutine calculate_rainfall_by_month() will calcluate the monthly totals of rainfall
 ' and output them to another worksheet by year and month in the following format:
 '
-' | Year | Jan | Feb | Mar |.........| 
+' | Year | Jan | Feb | Mar |.........|
 ' | 2016 | 34.4| 2.3 | 7.3 |.........|
+' | ...  | ...
+'
+' This module also contains a subroutine called calculate_yearly_rainfall() to
+' calculate the total for each year of the data set.
+'
+' Both subroutines should also work when the data changes, even if some
+' dates are missing.
 '
 ' The sheet names are coded inside the sub so you will have to change those for re-use
 ' By using conditional formatting, this could potentially generate an Excel heatmap.
+' ==============================================
 
 Private Function getMonthFromString(stringDate As String, source_format As String) As String
     ' Silly string extraction for string dates
@@ -61,8 +71,6 @@ Sub calculate_yearly_rainfall()
     
     Dim dateNum As Double
     Dim inputRangeSize As Integer
-    
-    ' NOTE: Need to correct one value from -1 to 0: Date 30/06/2013
     
     ' Turn screen updating off so the program runs faster
     ' This stops the screen from flickering as each value is written to the screen
@@ -147,20 +155,16 @@ Sub calculate_rainfall_by_month()
     Dim monthList As String
     Dim monthNum As Byte
     Dim yearNum As Byte
-    Dim monthString As String
     
     Dim cell As Range
 
-    
-    ' NOTE: You may need to correct one value from -1 to 0: Date 30/06/2013
-    
     ' Turn screen updating off so the program runs faster
     ' This stops the screen from flickering as each value is written to the screen
-'    Application.ScreenUpdating = False
+    Application.ScreenUpdating = False
     
     ' Clear the previous run of this sub by deleting all output
     ' using a user defined function (UDF)
-    'Call ClearMonthlyResults
+    Call ClearMonthlyResults
     
     ' Create a range variable to point to the start of the data
     Set dataStartCell = Worksheets("Given Data Format").Range("A1")
@@ -180,7 +184,6 @@ Sub calculate_rainfall_by_month()
     yearNum = 1
     
     ' Initialize the variables used as counters
-
     yearlySum = 0
     monthlySum = 0
     monthNum = 1
@@ -188,9 +191,6 @@ Sub calculate_rainfall_by_month()
     ' DatePart() works correctly for unambiguous dates, but doesn't pad leading zeroes
     previousMonth = month(dataStartCell.Offset(1, 0).Value)
     previousYear = Year(dataStartCell.Offset(1, 0).Value)
-    'previousMonth = getMonthFromString(dataStartCell.Offset(1, 0).Value, "dd/mm/yyyy")
-    'previousYear = DatePart("yyyy", dataStartCell.Offset(1, 0).Value)
-    monthString = "="
     
     ' Start the main loop
     With dataStartCell
@@ -210,13 +210,12 @@ Sub calculate_rainfall_by_month()
                 If currentMonth = previousMonth Then
                     ' Add the rainfall to the current monthly sum
                     monthlySum = monthlySum + currentRainfall
-                    monthString = monthString & "+" & currentRainfall
+                    'monthString = monthString & "+" & currentRainfall
                     
                 Else
                     ' A new month has occurred
                                        
                     ' Add the last day of the previous Month
-                    'monthlySum = monthlySum + currentRainfall
                     ' Output the month's total rainfall
                     outputStartCell.Offset(yearNum, monthNum).Value = monthlySum
                                         
@@ -225,9 +224,6 @@ Sub calculate_rainfall_by_month()
                     
                     ' Increase the count to the next month
                     monthNum = monthNum + 1
-                    
-                    Debug.Print monthString
-                    monthString = "="
                     
                 End If
                 
@@ -245,12 +241,11 @@ Sub calculate_rainfall_by_month()
                     ' Increase the count to the next month
                     'monthNum = monthNum + 1
                     
+                    ' Output the current Year's December Rainfall
+                    'outputStartCell.Offset(yearNum, monthNum).Value = monthlySum
+                    
                     ' Set the previousMonth as the currentMonth
                     previousMonth = currentMonth
-                    'Debug.Print ("December rainfall: " & monthlySum)
-                    
-                    ' Output the current Year's December Rainfall
-                    outputStartCell.Offset(yearNum, monthNum).Value = monthlySum
                     
                     yearlySum = 0
                     yearNum = yearNum + 1
@@ -270,7 +265,8 @@ Sub calculate_rainfall_by_month()
                 
         Next
         
-        ' Output the last year value in the first column
+        ' Output the final month total and the last year value in the first column
+        outputStartCell.Offset(yearNum, monthNum) = monthlySum
         outputStartCell.Offset(yearNum, 0).Value = currentYear
         
     End With
@@ -278,7 +274,6 @@ Sub calculate_rainfall_by_month()
     ' Turn screen updating back on
     Application.ScreenUpdating = True
 End Sub
-
 
 Sub ClearYearlyResults()
 '
